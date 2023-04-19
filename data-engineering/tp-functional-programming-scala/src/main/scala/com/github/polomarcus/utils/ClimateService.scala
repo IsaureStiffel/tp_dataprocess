@@ -16,7 +16,18 @@ object ClimateService {
    * @param description "my awesome sentence contains a key word like climate change"
    * @return Boolean True
    */
-  def isClimateRelated(description: String): Boolean = ???
+  def isClimateRelated(description: String): Boolean = {
+    val keywords = List("global warming", "IPCC", "climate change")
+    val lowerDescription = description.toLowerCase
+
+    for (keyword <- keywords) {
+      if (lowerDescription.contains(keyword.toLowerCase)) {
+        return true
+      }
+    }
+    return false
+  }
+
 
   /**
    * parse a list of raw data and transport it with type into a list of CO2Record
@@ -26,8 +37,14 @@ object ClimateService {
    * you can access to Tuple with myTuple._1, myTuple._2, myTuple._3
    */
   def parseRawData(list: List[(Int, Int, Double)]) : List[Option[CO2Record]] = {
-    list.map { record => ??? }
-    ???
+    list.map { record =>
+      val (date, location, ppm) = record
+      if (ppm >= 0) {
+        Some(CO2Record(date, location, ppm))
+      } else {
+        None
+      }
+    }
   }
 
   /**
@@ -36,15 +53,23 @@ object ClimateService {
    * @param list
    * @return a list
    */
-  def filterDecemberData(list: List[Option[CO2Record]]) : List[CO2Record] = ???
+  def filterDecemberData(list: List[Option[CO2Record]]) : List[CO2Record] = {
+    list.flatten.filterNot(record => record.month == 12)
+  }
 
 
   /**
    * **Tips**: look at the read me to find some tips for this function
    */
-  def getMinMax(list: List[CO2Record]) : (Double, Double) = ???
+  def getMinMax(list: List[CO2Record]) : (Double, Double) = {
+    val ppmValues = list.map(_.ppm)
+    (ppmValues.min, ppmValues.max)
+  }
 
-  def getMinMaxByYear(list: List[CO2Record], year: Int) : (Double, Double) = ???
+  def getMinMaxByYear(list: List[CO2Record], year: Int) : (Double,Double) = {
+    val ppmList = list.filter(_.year == year).map(_.ppm)
+    (ppmList.min, ppmList.max)
+  }
 
   /**
    * use this function side src/main/scala/com/polomarcus/main/Main (with sbt run)
